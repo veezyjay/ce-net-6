@@ -458,3 +458,5 @@ $RECYCLE.BIN/
 ##
 appsettings.Development.json
 appsettings.json
+
+*/internal_logs/*

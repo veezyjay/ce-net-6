@@ -35,6 +35,10 @@ namespace CompanyEmployees.Presentation.Controllers
         {
             if (employee is null)
                 return BadRequest("EmployeeForCreationDto object is null");
+
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var employeeToReturn =  _service.EmployeeService.CreateEmployeeForCompany(companyId, employee, trackChanges: false);
             return CreatedAtRoute("GetEmployeeForCompany", new
             {
@@ -55,6 +59,8 @@ namespace CompanyEmployees.Presentation.Controllers
         {
             if (employee is null)
                 return BadRequest("EmployeeForUpdateDto object is null");
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
             _service.EmployeeService.UpdateEmployeeForCompany(companyId, id, employee, compTrackChanges: false, 
                 empTrackChanges: true);
             return NoContent();
@@ -68,7 +74,10 @@ namespace CompanyEmployees.Presentation.Controllers
                 return BadRequest("patchDoc object sent from client is null.");
             var (employeeToPatch, employeeEntity) = _service.EmployeeService.GetEmployeeForPatch(companyId, id, 
                 compTrackChanges: false, empTrackChanges: true);
-            patchDoc.ApplyTo(employeeToPatch);
+            patchDoc.ApplyTo(employeeToPatch, ModelState);
+            TryValidateModel(employeeToPatch);
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
             _service.EmployeeService.SaveChangesForPatch(employeeToPatch, employeeEntity);
             return NoContent();
         }
